@@ -1,32 +1,19 @@
-// chess logic
-import Chess from '../lib/chess.js';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-// chess gui
-import '../lib/chessboardjs/css/chessboard.css';
-import '../lib/chessboardjs/js/chessboard.js';
+import Board from './Board/Board';
+import './App.less';
 
-// app specific stuff
-import './styles.less';
+let rootEl = document.querySelector('#chess-fiddle');
 
-let chess = new Chess();
-let board = ChessBoard('board', {
-  draggable: true,
-  position: 'start',
+let container = (
+  <div>
+    <h1>heyyyyy</h1>
+    <Board />
+  </div>
+);
 
-  // source: d7
-  // target: e7
-  // piece: bP
-  // newPosition: new board state
-  // oldPosition: old board state
-  // orientation: black
-  onDrop: function (source, target, piece, newPosition, oldPosition, orientation) {
-    let move = chess.move({
-      from: source,
-      to: target
-    });
-
-    if (!move) {
-      return 'snapback';
-    }
-  }
-});
+ReactDOM.render(
+  container,
+  rootEl
+);
