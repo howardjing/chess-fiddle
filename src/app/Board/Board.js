@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
+import Immutable from 'immutable';
 
 // chess logic
 import Game from '../../lib/chess.js';
@@ -15,43 +16,57 @@ class Board extends Component {
     super(props);
 
     this.state = {
-      // placeholder for the ChessBoard
-      board: {
+      // placeholder for the ChessBoard gui
+      gui: {
         destroy() {}
-      },
-
-      game: new Game()
+      }
     };
   }
 
-  componentDidMount () {
-    let { chessEl } = this.refs;
-    let { game } = this.state;
-    let board = ChessBoard(chessEl, {
-      draggable: true,
-      position: 'start',
-
-      onDrop (source, target) {
-        let move = game.move({
-          from: source,
-          to: target,
-          promotion: 'q' // promote to queen
-        });
-
-        if (!move) {
-          return 'snapback';
-        }
-      }
-    });
-
-    this.setState({
-      board
+  _isValidMove(board, source, target, piece) {
+    let moves = board.moves({ square: source, verbose: true });
+    return !!Immutable.List(moves).find(function (move) {
+      return move.to === target;
     });
   }
 
+  _renderGui (props) {
+    let { chessEl } = this.refs;
+    let { board, onMove } = props;
+
+    let oldGui = this.state.gui;
+    oldGui.destroy();
+
+    let gui = ChessBoard(chessEl, {
+      draggable: true,
+      position: board.fen(),
+
+      onDrop: function (source, target, piece) {
+        if (this._isValidMove(board, source, target, piece)) {
+          onMove(source, target);
+        } else {
+          return 'snapback';
+        }
+      }.bind(this)
+    });
+
+    // update to use the new board
+    this.setState({
+      gui
+    });
+  }
+
+  componentDidMount () {
+    this._renderGui(this.props);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    this._renderGui(nextProps);
+  }
+
   componentWillUnmount () {
-    let { board } = this.state;
-    board.destroy();
+    let { gui } = this.state;
+    gui.destroy();
   }
 
   render () {
@@ -60,5 +75,10 @@ class Board extends Component {
     );
   }
 }
+
+Board.propTypes = {
+  board: PropTypes.object.isRequired,
+  onMove: PropTypes.func.isRequired
+};
 
 export default Board;
