@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { move } from '../actions.js';
+import { move, undo, redo } from '../actions.js';
 import Board from '../Board/Board.js';
+import Turns from '../Turns/Turns.js';
+import Controls from '../Controls/Controls.js';
 
 class App extends Component {
 
@@ -11,12 +13,23 @@ class App extends Component {
     dispatch(move(source, target));
   }
 
+  _undo () {
+    let { dispatch } = this.props;
+    dispatch(undo());
+  }
+
   render () {
-    let { board } = this.props;
+    let { board, history } = this.props;
     return (
-      <Board
-        board={board}
-        onMove={this._move.bind(this)} />
+      <div>
+        <Board
+          board={board}
+          onMove={this._move.bind(this)} />
+        <Controls
+          onUndo={this._undo.bind(this)} />
+        <Turns
+          history={history} />
+      </div>
     );
   }
 }
@@ -24,7 +37,8 @@ class App extends Component {
 // extract relevant properties from state
 const select = function (state) {
   return {
-    board: state.board
+    board: state.get('board'),
+    history: state.get('history').toArray()
   };
 }
 

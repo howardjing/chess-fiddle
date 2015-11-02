@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import Immutable from 'immutable';
 import { BoardActions } from './actions.js';
 import Chess from '../lib/chess.js';
 
@@ -13,26 +13,44 @@ const createReducer = function (initialState, handlers) {
   }
 }
 
-const board = createReducer(new Chess(), {
+const buildBoard = function (board) {
+  let newBoard = new Chess();
+  newBoard.load_pgn(board.pgn());
+  return newBoard;
+}
+
+const getHistory = function (board) {
+  return Immutable.List(board.history({ verbose: true }));
+}
+
+const chessFiddleApp = createReducer(Immutable.Map({
+  board: new Chess(),
+  history: Immutable.List()
+}), {
   [BoardActions.MOVE] (state, action) {
     let { source, target } = action.payload;
 
-    let newState = new Chess()
-    newState.load_pgn(state.pgn());
-    if (newState.move({
+    let board = buildBoard(state.get('board'));
+    if (board.move({
       from: source,
       to: target,
       promotion: 'q' // promote to queen
     })) {
-      return newState;
+      return state
+        .set('board', board)
+        .set('history', getHistory(board));
     } else {
       return state;
     }
-  }
-});
+  },
 
-const chessFiddleApp = combineReducers({
-  board
+  [BoardActions.UNDO] (state, action) {
+    let board = buildBoard(state.get('board'));
+    board.undo();
+    return state
+      .set('board', board)
+      .set('history', getHistory(board));
+  }
 });
 
 export default chessFiddleApp;
