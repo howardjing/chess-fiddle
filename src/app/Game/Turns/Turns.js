@@ -12,7 +12,7 @@ class Turns extends Component {
       <li key={index}>
         <span className={
           classNames({
-          [styles.active]: activeIndex === index
+            [styles.active]: activeIndex === index
           })
         }>
           { move.color }: { move.from } -> { move.to }
@@ -35,7 +35,7 @@ class Turns extends Component {
 }
 
 Turns.propTypes = {
-  history: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
   activeIndex: PropTypes.number.isRequired
 };
 

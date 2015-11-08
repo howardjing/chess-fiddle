@@ -2,11 +2,11 @@ import React, { Component, PropTypes } from 'react';
 import Immutable from 'immutable';
 
 // chess logic
-import Game from '../../lib/chess.js';
+import Game from '../../../lib/chess.js';
 
 // chess gui -- exports global ChessBoard object
-import '../../lib/chessboardjs/css/chessboard.css';
-import '../../lib/chessboardjs/js/chessboard.js';
+import '../../../lib/chessboardjs/css/chessboard.css';
+import '../../../lib/chessboardjs/js/chessboard.js';
 
 import styles from './Board.less';
 

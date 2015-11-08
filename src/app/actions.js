@@ -1,14 +1,30 @@
 // action types
-export const BoardActions = {
+export const Actions = {
   MOVE: 'MOVE',
   UNDO: 'UNDO',
-  REDO: 'REDO'
+  REDO: 'REDO',
+  NEW_GAME: 'NEW_GAME',
+  SELECT_GAME: 'SELECT_GAME'
 };
 
-// action creators
+export function newGame () {
+  return {
+    type: Actions.NEW_GAME,
+  };
+};
+
+export function selectGame (index) {
+  return {
+    type: Actions.SELECT_GAME,
+    payload: {
+      index: index
+    }
+  };
+}
+
 export function move (source, target) {
   return {
-    type: BoardActions.MOVE,
+    type: Actions.MOVE,
     payload: {
       source,
       target
@@ -18,12 +34,12 @@ export function move (source, target) {
 
 export function undo () {
   return {
-    type: BoardActions.UNDO
+    type: Actions.UNDO
   }
 };
 
 export function redo () {
   return {
-    type: BoardActions.REDO
+    type: Actions.REDO
   }
 };

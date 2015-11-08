@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import { BoardActions } from './actions.js';
+import { Actions } from './actions.js';
 import Chess from '../lib/chess.js';
 
 // see http://redux.js.org/docs/recipes/ReducingBoilerplate.html#generating-reducers
@@ -34,15 +34,57 @@ const updateHistory = function (history, index, move) {
   return history.take(index + 1).push(move);
 };
 
-const chessFiddleApp = createReducer(Immutable.Map({
-  board: new Chess(),
-  history: Immutable.List(),
-  activeIndex: -1
-}), {
+const appendGame = function (games) {
+  return games.push(
+    Immutable.Map({
+      title: `Game ${games.size}`,
+      board: new Chess(),
+      history: Immutable.List(),
+      activeIndex: -1
+    })
+  );
+};
 
-  [BoardActions.MOVE] (state, action) {
+const getInitialState = function () {
+  return Immutable.Map({
+    games: appendGame(Immutable.List()),
+    selectedGameIndex: 0
+  });
+};
+
+const getActiveGameIndex = function (state) {
+  return state.get('selectedGameIndex');
+}
+const getActiveGame = function (state) {
+  return state.getIn(['games', getActiveGameIndex(state)]);
+};
+
+const chessFiddleApp = createReducer(getInitialState(), {
+
+  [Actions.NEW_GAME] (state) {
+    let games = appendGame(state.get('games'));
+    return state
+      .set('games', games)
+      .set('selectedGameIndex', games.size - 1);
+  },
+
+  [Actions.SELECT_GAME] (state, action) {
+    let { index } = action.payload;
+    let games = state.get('games');
+
+    if (index >= 0 && index < games.size) {
+      return state
+        .set('selectedGameIndex', index);
+    } else {
+      return state;
+    }
+  },
+
+  [Actions.MOVE] (state, action) {
     let { source, target } = action.payload;
-    let board = cloneBoard(state.get('board'));
+    let gameIndex = getActiveGameIndex(state);
+    let game = getActiveGame(state);
+    let board = cloneBoard(game.get('board'));
     let move = board.move({
       from: source,
       to: target,
@@ -51,33 +93,41 @@ const chessFiddleApp = createReducer(Immutable.Map({
 
     if (move) {
       return state
-        .set('board', board)
-        .set('history', updateHistory(state.get('history'), state.get('activeIndex'), move))
-        .set('activeIndex', state.get('activeIndex') + 1);
+        .setIn(['games', gameIndex, 'board'], board)
+        .setIn(['games', gameIndex, 'history'], updateHistory(
+                                                  game.get('history'),
+                                                  game.get('activeIndex'),
+                                                  move
+                                                ))
+        .setIn(['games', gameIndex, 'activeIndex'], game.get('activeIndex') + 1);
     } else {
       return state;
     }
   },
 
-  [BoardActions.UNDO] (state, action) {
-    if (state.get('activeIndex') >= 0) {
-      let index = state.get('activeIndex') - 1;
-      let board = reconstructBoard(state.get('history'), index);
+  [Actions.UNDO] (state) {
+    let gameIndex = getActiveGameIndex(state);
+    let game = getActiveGame(state);
+    if (game.get('activeIndex') >= 0) {
+      let index = game.get('activeIndex') - 1;
+      let board = reconstructBoard(game.get('history'), index);
       return state
-        .set('board', board)
-        .set('activeIndex', index);
+        .setIn(['games', gameIndex, 'board'], board)
+        .setIn(['games', gameIndex, 'activeIndex'], index);
     } else {
       return state;
     }
   },
 
-  [BoardActions.REDO] (state, action) {
-    if (state.get('activeIndex') < state.get('history').size - 1) {
-      let index = state.get('activeIndex') + 1;
-      let board = reconstructBoard(state.get('history'), index);
+  [Actions.REDO] (state) {
+    let gameIndex = getActiveGameIndex(state);
+    let game = getActiveGame(state);
+    if (game.get('activeIndex') < game.get('history').size - 1) {
+      let index = game.get('activeIndex') + 1;
+      let board = reconstructBoard(game.get('history'), index);
       return state
-        .set('board', board)
-        .set('activeIndex', index);
+        .setIn(['games', gameIndex, 'board'], board)
+        .setIn(['games', gameIndex, 'activeIndex'], index);
     } else {
       return state;
     }

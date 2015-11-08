@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { move, undo, redo } from '../actions.js';
-import Board from '../Board/Board.js';
-import Turns from '../Turns/Turns.js';
-import Controls from '../Controls/Controls.js';
+import { move, undo, redo, newGame, selectGame } from '../actions.js';
+import Game from '../Game/Game.js';
+import GameList from '../GameList/GameList.js';
+import styles from './App.less';
 
 class App extends Component {
 
@@ -23,24 +23,35 @@ class App extends Component {
     dispatch(redo());
   }
 
+  _startNewGame () {
+    let { dispatch } = this.props;
+    dispatch(newGame());
+  }
+
+  _selectGame (index) {
+    let { dispatch } = this.props;
+    dispatch(selectGame(index));
+  }
+
   render () {
     let {
-      board,
-      history,
-      activeIndex
+      games,
+      selectedGameIndex
     } = this.props;
 
+    let selectedGame = games.get(selectedGameIndex);
     return (
-      <div>
-        <Board
-          board={board}
-          onMove={this._move.bind(this)} />
-        <Controls
+      <div className={styles.container}>
+        <Game className={styles.primary}
+          game={selectedGame}
+          onMove={this._move.bind(this)}
           onUndo={this._undo.bind(this)}
           onRedo={this._redo.bind(this)} />
-        <Turns
-          history={history}
-          activeIndex={activeIndex} />
+        <GameList className={styles.secondary}
+          games={games}
+          selectedGameIndex={selectedGameIndex}
+          onSelectGame={this._selectGame.bind(this)}
+          onNewGame={this._startNewGame.bind(this)} />
       </div>
     );
   }
@@ -49,11 +60,10 @@ class App extends Component {
 // extract relevant properties from state
 const select = function (state) {
   return {
-    board: state.get('board'),
-    history: state.get('history').toArray(),
-    activeIndex: state.get('activeIndex')
+    games: state.get('games'),
+    selectedGameIndex: state.get('selectedGameIndex')
   };
-}
+};
 
 export default connect(select)(App);
 
