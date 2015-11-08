@@ -1,15 +1,29 @@
 import React, { Component, PropTypes } from 'react';
+import classNames from 'classnames';
+import styles from './Turns.less';
 
 class Turns extends Component {
 
   _renderTurn (move, index) {
+    let { activeIndex } = this.props;
+
+
     return (
-      <li key={index}>{ move.color }: { move.from } -> { move.to }</li>
+      <li key={index}>
+        <span className={
+          classNames({
+          [styles.active]: activeIndex === index
+          })
+        }>
+          { move.color }: { move.from } -> { move.to }
+        </span>
+      </li>
     );
   }
 
   render () {
     let { history } = this.props;
+
     return (
       <ul>
         History
@@ -21,7 +35,8 @@ class Turns extends Component {
 }
 
 Turns.propTypes = {
-  history: PropTypes.array.isRequired
+  history: PropTypes.array.isRequired,
+  activeIndex: PropTypes.number.isRequired
 };
 
 export default Turns;

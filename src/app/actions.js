@@ -1,7 +1,8 @@
 // action types
 export const BoardActions = {
   MOVE: 'MOVE',
-  UNDO: 'UNDO'
+  UNDO: 'UNDO',
+  REDO: 'REDO'
 };
 
 // action creators
@@ -13,10 +14,16 @@ export function move (source, target) {
       target
     }
   };
-}
+};
 
 export function undo () {
   return {
     type: BoardActions.UNDO
   }
-}
+};
+
+export function redo () {
+  return {
+    type: BoardActions.REDO
+  }
+};

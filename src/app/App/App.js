@@ -18,17 +18,29 @@ class App extends Component {
     dispatch(undo());
   }
 
+  _redo () {
+    let { dispatch } = this.props;
+    dispatch(redo());
+  }
+
   render () {
-    let { board, history } = this.props;
+    let {
+      board,
+      history,
+      activeIndex
+    } = this.props;
+
     return (
       <div>
         <Board
           board={board}
           onMove={this._move.bind(this)} />
         <Controls
-          onUndo={this._undo.bind(this)} />
+          onUndo={this._undo.bind(this)}
+          onRedo={this._redo.bind(this)} />
         <Turns
-          history={history} />
+          history={history}
+          activeIndex={activeIndex} />
       </div>
     );
   }
@@ -38,7 +50,8 @@ class App extends Component {
 const select = function (state) {
   return {
     board: state.get('board'),
-    history: state.get('history').toArray()
+    history: state.get('history').toArray(),
+    activeIndex: state.get('activeIndex')
   };
 }
 
