@@ -15,7 +15,7 @@ class Turns extends Component {
             [styles.active]: activeIndex === index
           })
         }>
-          { move.color }: { move.from } -> { move.to }
+          { move.get('color') }: { move.get('from') } -> { move.get('to') }
         </span>
       </li>
     );

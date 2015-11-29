@@ -1,16 +1,23 @@
 import React, { Component, PropTypes } from 'react';
+import styles from './Controls.less';
 
 class Controls extends Component {
   render () {
     let {
       onUndo,
-      onRedo
+      onRedo,
+      onDelete
     } = this.props;
     return (
-      <div>
-        Controls:
-        <button onClick={onUndo}>Undo</button>
-        <button onClick={onRedo}>Redo</button>
+      <div className={ styles.container }>
+        <div>
+          Controls:
+          <button onClick={ onUndo }>Undo</button>
+          <button onClick={ onRedo }>Redo</button>
+        </div>
+        <div>
+          <button onClick={ onDelete }>Delete</button>
+        </div>
       </div>
     );
   }
@@ -18,7 +25,8 @@ class Controls extends Component {
 
 Controls.propTypes = {
   onUndo: PropTypes.func.isRequired,
-  onRedo: PropTypes.func.isRequired
+  onRedo: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired
 };
 
 export default Controls;

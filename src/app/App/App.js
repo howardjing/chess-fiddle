@@ -1,7 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { move, undo, redo, newGame, selectGame } from '../actions.js';
+import {
+  move,
+  undo,
+  redo,
+  newGame,
+  deleteGame,
+  selectGame,
+  loadGames,
+  editTitle,
+  saveTitle
+} from '../actions.js';
 import Game from '../Game/Game.js';
 import GameList from '../GameList/GameList.js';
 import styles from './App.less';
@@ -33,25 +43,48 @@ class App extends Component {
     dispatch(selectGame(index));
   }
 
+  _onEditingTitle (title) {
+    let { dispatch } = this.props;
+    dispatch(editTitle(title));
+  }
+
+  _onEditedTitle () {
+    let { dispatch } = this.props;
+    dispatch(saveTitle());
+  }
+
+  _onDeleteActiveGame () {
+    let { dispatch, activeGameIndex } = this.props;
+    dispatch(deleteGame(activeGameIndex))
+  }
+
   render () {
     let {
       games,
-      selectedGameIndex
+      activeGameIndex
     } = this.props;
 
-    let selectedGame = games.get(selectedGameIndex);
+
+    let activeGame = games.get(activeGameIndex);
     return (
-      <div className={styles.container}>
-        <Game className={styles.primary}
-          game={selectedGame}
-          onMove={this._move.bind(this)}
-          onUndo={this._undo.bind(this)}
-          onRedo={this._redo.bind(this)} />
-        <GameList className={styles.secondary}
-          games={games}
-          selectedGameIndex={selectedGameIndex}
-          onSelectGame={this._selectGame.bind(this)}
-          onNewGame={this._startNewGame.bind(this)} />
+      <div className={ styles.container }>
+        <Game className={ styles.primary }
+          game={ activeGame }
+
+          onTitleEditing={ this._onEditingTitle.bind(this) }
+          onTitleEdited={ this._onEditedTitle.bind(this) }
+
+          onMove={ this._move.bind(this) }
+          onUndo={ this._undo.bind(this) }
+          onRedo={ this._redo.bind(this) }
+
+          onDelete={ this._onDeleteActiveGame.bind(this) } />
+
+        <GameList className={ styles.secondary }
+          games={ games }
+          activeGameIndex={ activeGameIndex }
+          onSelectGame={ this._selectGame.bind(this) }
+          onNewGame={ this._startNewGame.bind(this) } />
       </div>
     );
   }
@@ -61,7 +94,7 @@ class App extends Component {
 const select = function (state) {
   return {
     games: state.get('games'),
-    selectedGameIndex: state.get('selectedGameIndex')
+    activeGameIndex: state.get('activeGameIndex')
   };
 };
 

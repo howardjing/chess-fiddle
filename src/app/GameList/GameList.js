@@ -6,20 +6,20 @@ class GameList extends Component {
 
   _renderGame (game, index) {
     let {
-      selectedGameIndex,
+      activeGameIndex,
       onSelectGame
-     } = this.props;
+    } = this.props;
 
     return (
       <li key={index}
-        onClick={onSelectGame.bind(this, index)}>
-        <span className={
+        onClick={onSelectGame.bind(this, index)}
+        className={
           classNames({
-            [styles.active]: selectedGameIndex === index
+            [styles.active]: activeGameIndex === index,
+            [styles.clickable]: activeGameIndex !== index
           })
         }>
-          {game.get('title')}
-        </span>
+        {game.get('title')}
       </li>
     );
   }
@@ -47,7 +47,7 @@ class GameList extends Component {
 GameList.propTypes = {
   className: PropTypes.string,
   games: PropTypes.object.isRequired,
-  selectedGameIndex: PropTypes.number.isRequired,
+  activeGameIndex: PropTypes.number.isRequired,
   onNewGame: PropTypes.func.isRequired,
   onSelectGame: PropTypes.func.isRequired
 };
